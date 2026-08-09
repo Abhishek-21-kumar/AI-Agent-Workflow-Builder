@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+/.pnpm
+/.yarn
+
+# Next.js build outputs
+frontend/.next/
+frontend/out/
+
+# Nhost local runtime outputs
+nhost/.nhost/
+.nhost/
+
+# Environment files and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/.env
+frontend/.env.local
+.secrets
+
+# Executables and archives
+cli
+*.tar.gz
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+*.pem
+.vscode/
+.idea/

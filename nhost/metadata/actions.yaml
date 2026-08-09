@@ -1,0 +1,53 @@
+actions:
+  - name: triggerWorkflowRun
+    definition:
+      kind: synchronous
+      handler: "{{ACTION_BASE_URL}}/api/actions/trigger-workflow-run"
+      forward_client_headers: true
+    permissions:
+      - role: user
+      - role: owner
+      - role: editor
+    comment: "Trigger a workflow run with authorization, quota check, and sequential step execution."
+  - name: approveStepRun
+    definition:
+      kind: synchronous
+      handler: "{{ACTION_BASE_URL}}/api/actions/approve-step"
+      forward_client_headers: true
+    permissions:
+      - role: user
+      - role: owner
+      - role: editor
+    comment: "Approve an approval_gate step run, verifying org membership and required role, then resume workflow execution."
+
+custom_types:
+  input_objects:
+    - name: TriggerWorkflowRunInput
+      fields:
+        - name: workflow_id
+          type: uuid!
+        - name: input
+          type: jsonb
+    - name: ApproveStepRunInput
+      fields:
+        - name: step_run_id
+          type: uuid!
+  objects:
+    - name: TriggerWorkflowRunOutput
+      fields:
+        - name: run_id
+          type: String
+        - name: status
+          type: String!
+        - name: message
+          type: String!
+        - name: output
+          type: jsonb
+    - name: ApproveStepRunOutput
+      fields:
+        - name: step_run_id
+          type: String
+        - name: status
+          type: String!
+        - name: message
+          type: String!

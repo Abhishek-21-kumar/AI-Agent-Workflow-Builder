@@ -1,0 +1,12 @@
+type TriggerWorkflowRunOutput {
+  run_id: String
+  status: String!
+  message: String!
+  output: jsonb
+}
+
+type ApproveStepRunOutput {
+  step_run_id: String
+  status: String!
+  message: String!
+}

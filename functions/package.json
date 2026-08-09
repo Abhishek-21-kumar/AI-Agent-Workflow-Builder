@@ -1,0 +1,16 @@
+{
+  "name": "functions",
+  "version": "1.0.0",
+  "description": "This directory will house Nhost serverless Node.js / TypeScript functions and HTTP webhooks for future phases: - Webhook trigger endpoint listener (`/functions/v1/trigger`) - Scheduled workflow cron handlers - Async LLM call execution engine & approval gate resolution endpoints",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
