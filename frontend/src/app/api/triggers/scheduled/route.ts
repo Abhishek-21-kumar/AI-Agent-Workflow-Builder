@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     )
 
     return NextResponse.json(result, { status: 200 })
-  } catch (err: any) {
-    console.error('[Scheduled Trigger Error]:', err.message)
+  } catch (err: unknown) {
+    console.error('[Scheduled Trigger Error]:', err instanceof Error ? err.message : String(err))
     return NextResponse.json(
       { message: 'Internal server error processing scheduled trigger.' },
       { status: 500 }

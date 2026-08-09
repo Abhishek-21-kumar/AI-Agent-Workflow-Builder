@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 export interface StepRunItem {
   id: string
@@ -8,8 +8,8 @@ export interface StepRunItem {
   position: number
   status: 'running' | 'completed' | 'failed' | 'paused' | 'waiting'
   attempt_count: number
-  output?: any
-  error?: any
+  output?: unknown
+  error?: unknown
   started_at: string
   completed_at?: string
 }
@@ -31,14 +31,14 @@ interface RunMonitorProps {
 }
 
 export function RunMonitor({ activeRunId }: RunMonitorProps) {
-  const [runs, setRuns] = useState<WorkflowRunItem[]>([
+  const [runs] = useState<WorkflowRunItem[]>([
     {
       id: 'run-8392-demo',
       workflow_name: 'Customer Support Sentiment & Escalation',
       triggered_by: 'user-owner-a',
       trigger_type: 'manual',
       status: 'paused',
-      started_at: new Date(Date.now() - 120000).toISOString(),
+      started_at: '2026-08-09T18:00:00.000Z',
       step_runs: [
         {
           id: 'step-run-1',
@@ -47,8 +47,8 @@ export function RunMonitor({ activeRunId }: RunMonitorProps) {
           status: 'completed',
           attempt_count: 1,
           output: { text: 'Urgent ticket received regarding delayed shipping.', provider: 'groq' },
-          started_at: new Date(Date.now() - 120000).toISOString(),
-          completed_at: new Date(Date.now() - 110000).toISOString()
+          started_at: '2026-08-09T18:00:00.000Z',
+          completed_at: '2026-08-09T18:00:10.000Z'
         },
         {
           id: 'step-run-2',
@@ -57,8 +57,8 @@ export function RunMonitor({ activeRunId }: RunMonitorProps) {
           status: 'completed',
           attempt_count: 1,
           output: { status: 200, status_text: 'OK', data: { user_id: 'user-owner-a' } },
-          started_at: new Date(Date.now() - 110000).toISOString(),
-          completed_at: new Date(Date.now() - 100000).toISOString()
+          started_at: '2026-08-09T18:00:10.000Z',
+          completed_at: '2026-08-09T18:00:20.000Z'
         },
         {
           id: 'step-run-3',
@@ -67,8 +67,8 @@ export function RunMonitor({ activeRunId }: RunMonitorProps) {
           status: 'completed',
           attempt_count: 1,
           output: { evaluated: true, next_position: 4, operator: 'contains' },
-          started_at: new Date(Date.now() - 100000).toISOString(),
-          completed_at: new Date(Date.now() - 95000).toISOString()
+          started_at: '2026-08-09T18:00:20.000Z',
+          completed_at: '2026-08-09T18:00:25.000Z'
         },
         {
           id: 'step-run-4',
@@ -77,7 +77,7 @@ export function RunMonitor({ activeRunId }: RunMonitorProps) {
           status: 'waiting',
           attempt_count: 1,
           output: { message: 'Awaiting owner approval for high risk escalation.' },
-          started_at: new Date(Date.now() - 95000).toISOString()
+          started_at: '2026-08-09T18:00:25.000Z'
         }
       ]
     }
@@ -86,13 +86,8 @@ export function RunMonitor({ activeRunId }: RunMonitorProps) {
   const [selectedRunId, setSelectedRunId] = useState<string>('run-8392-demo')
   const [selectedStepRun, setSelectedStepRun] = useState<StepRunItem | null>(null)
 
-  useEffect(() => {
-    if (activeRunId) {
-      setSelectedRunId(activeRunId)
-    }
-  }, [activeRunId])
-
-  const currentRun = runs.find(r => r.id === selectedRunId) || runs[0]
+  const currentRunId = activeRunId || selectedRunId
+  const currentRun = runs.find(r => r.id === currentRunId) || runs[0]
 
   return (
     <div className="space-y-6">

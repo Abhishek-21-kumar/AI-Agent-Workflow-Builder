@@ -1,0 +1,90 @@
+table:
+  name: workflow_events
+  schema: public
+object_relationships:
+  - name: workflow
+    using:
+      foreign_key_constraint_on: workflow_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        workflow:
+          organization:
+            members:
+              user_id:
+                _eq: X-Hasura-User-Id
+      columns:
+        - id
+        - workflow_id
+        - event_name
+        - payload
+select_permissions:
+  - role: editor
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: editor
+      allow_aggregations: true
+  - role: owner
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: owner
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - id
+        - workflow_id
+        - event_name
+        - payload
+        - created_at
+      filter:
+        workflow:
+          organization:
+            members:
+              user_id:
+                _eq: X-Hasura-User-Id
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: viewer
+      allow_aggregations: true
+event_triggers:
+  - name: on_workflow_event_created
+    definition:
+      enable_manual: true
+      insert:
+        columns: '*'
+    retry_conf:
+      interval_sec: 10
+      num_retries: 0
+      timeout_sec: 60
+    webhook: '{{ACTION_BASE_URL}}/api/triggers/database-event'
+    headers:
+      - name: x-hasura-admin-secret
+        value_from_env: NHOST_ADMIN_SECRET

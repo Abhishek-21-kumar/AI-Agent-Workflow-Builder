@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React, { useState } from 'react'
@@ -81,7 +82,7 @@ export function WorkflowBuilder({ userRole, onRunTriggered }: WorkflowBuilderPro
     }
   ])
 
-  const [selectedWfId, setSelectedWfId] = useState<string>('wf-demo-001')
+  const [selectedWfId] = useState<string>('wf-demo-001')
   const [inputText, setInputText] = useState<string>('Customer is expressing urgent dissatisfaction with delayed order #4920')
   const [userId, setUserId] = useState<string>('user-owner-a')
   const [executing, setExecuting] = useState<boolean>(false)
@@ -127,8 +128,8 @@ export function WorkflowBuilder({ userRole, onRunTriggered }: WorkflowBuilderPro
       if (data.run_id) {
         onRunTriggered(data.run_id)
       }
-    } catch (err: any) {
-      setExecutionResult({ status: 'failed', message: err.message || 'Execution error' })
+    } catch (err: unknown) {
+      setExecutionResult({ status: 'failed', message: err instanceof Error ? err.message : 'Execution error' })
     } finally {
       setExecuting(false)
     }
@@ -324,7 +325,7 @@ export function WorkflowBuilder({ userRole, onRunTriggered }: WorkflowBuilderPro
         </div>
         {(newStepType === 'db_write' || newStepType === 'notify') && userRole !== 'owner' && (
           <p className="text-[11px] text-amber-400 font-mono">
-            ⚠️ Restricted Step: Creating "{newStepType}" steps requires the "owner" role. Current context: "{userRole}".
+            ⚠️ Restricted Step: Creating &quot;{newStepType}&quot; steps requires the &quot;owner&quot; role. Current context: &quot;{userRole}&quot;.
           </p>
         )}
       </div>

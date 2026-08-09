@@ -24,7 +24,7 @@ export function ApprovalGateCard({ userRole, onApproved }: ApprovalGateCardProps
       step_name: 'Owner Approval Gate',
       required_role: 'owner',
       message: 'High risk ticket requires owner sign-off before DB update & notification.',
-      paused_at: new Date(Date.now() - 95000).toISOString()
+      paused_at: '2026-08-09T18:00:25.000Z'
     }
   ])
 
@@ -83,11 +83,11 @@ export function ApprovalGateCard({ userRole, onApproved }: ApprovalGateCardProps
           text: data.message || 'Approval failed.'
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setResultMsg({
         id: item.step_run_id,
         status: 'error',
-        text: err.message || 'Error communicating with server.'
+        text: err instanceof Error ? err.message : 'Error communicating with server.'
       })
     } finally {
       setApprovingId(null)

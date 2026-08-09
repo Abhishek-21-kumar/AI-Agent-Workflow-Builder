@@ -14,22 +14,21 @@ export function AnalyticsDashboard({ userRole }: AnalyticsDashboardProps) {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  const loadAnalytics = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await fetchOrgUsageAnalytics(orgId, userId)
-      setAnalytics(data)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load analytics.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
+    async function loadAnalytics() {
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await fetchOrgUsageAnalytics(orgId, userId)
+        setAnalytics(data)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load analytics.')
+      } finally {
+        setLoading(false)
+      }
+    }
     loadAnalytics()
-  }, [orgId])
+  }, [orgId, userId])
 
   return (
     <div className="space-y-6">
@@ -39,7 +38,7 @@ export function AnalyticsDashboard({ userRole }: AnalyticsDashboardProps) {
           <div className="flex items-center space-x-2">
             <h2 className="text-xl font-bold text-white tracking-tight">Organization Analytics & Monthly Usage</h2>
             <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 rounded-full">
-              Phase 5 Active
+              Role: {userRole}
             </span>
           </div>
           <p className="text-zinc-400 text-xs mt-1">Aggregated metrics from PostgreSQL <code className="text-zinc-300 font-mono">organization_monthly_usage</code> view.</p>

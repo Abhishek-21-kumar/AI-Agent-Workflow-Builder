@@ -1,0 +1,246 @@
+table:
+  name: workflow_triggers
+  schema: public
+object_relationships:
+  - name: workflow
+    using:
+      foreign_key_constraint_on: workflow_id
+insert_permissions:
+  - role: editor
+    permission:
+      check:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _eq: editor
+          - type:
+              _neq: webhook
+      columns: '*'
+  - role: owner
+    permission:
+      check:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: owner
+      columns: '*'
+  - role: user
+    permission:
+      check:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - _or:
+              - workflow:
+                  organization:
+                    members:
+                      _and:
+                        - user_id:
+                            _eq: X-Hasura-User-Id
+                        - role:
+                            _eq: owner
+              - _and:
+                  - workflow:
+                      organization:
+                        members:
+                          _and:
+                            - user_id:
+                                _eq: X-Hasura-User-Id
+                            - role:
+                                _eq: editor
+                  - type:
+                      _neq: webhook
+      columns:
+        - id
+        - workflow_id
+        - type
+        - config
+        - active
+select_permissions:
+  - role: editor
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: editor
+      allow_aggregations: true
+  - role: owner
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: owner
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - id
+        - workflow_id
+        - type
+        - config
+        - active
+        - created_at
+        - updated_at
+      filter:
+        workflow:
+          organization:
+            members:
+              user_id:
+                _eq: X-Hasura-User-Id
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: viewer
+      allow_aggregations: true
+update_permissions:
+  - role: editor
+    permission:
+      columns: '*'
+      filter:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _eq: editor
+          - type:
+              _neq: webhook
+      check: null
+  - role: owner
+    permission:
+      columns: '*'
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: owner
+      check: null
+  - role: user
+    permission:
+      columns:
+        - type
+        - config
+        - active
+      filter:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - _or:
+              - workflow:
+                  organization:
+                    members:
+                      _and:
+                        - user_id:
+                            _eq: X-Hasura-User-Id
+                        - role:
+                            _eq: owner
+              - _and:
+                  - workflow:
+                      organization:
+                        members:
+                          _and:
+                            - user_id:
+                                _eq: X-Hasura-User-Id
+                            - role:
+                                _eq: editor
+                  - type:
+                      _neq: webhook
+      check: null
+delete_permissions:
+  - role: editor
+    permission:
+      filter:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _eq: editor
+          - type:
+              _neq: webhook
+  - role: owner
+    permission:
+      filter:
+        workflow:
+          organization:
+            members:
+              _and:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - role:
+                    _eq: owner
+  - role: user
+    permission:
+      filter:
+        _and:
+          - workflow:
+              organization:
+                members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - _or:
+              - workflow:
+                  organization:
+                    members:
+                      _and:
+                        - user_id:
+                            _eq: X-Hasura-User-Id
+                        - role:
+                            _eq: owner
+              - _and:
+                  - workflow:
+                      organization:
+                        members:
+                          _and:
+                            - user_id:
+                                _eq: X-Hasura-User-Id
+                            - role:
+                                _eq: editor
+                  - type:
+                      _neq: webhook

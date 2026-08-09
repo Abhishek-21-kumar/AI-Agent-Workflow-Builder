@@ -1,0 +1,123 @@
+table:
+  name: organizations
+  schema: public
+array_relationships:
+  - name: members
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: org_members
+          schema: public
+  - name: workflows
+    using:
+      foreign_key_constraint_on:
+        column: org_id
+        table:
+          name: workflows
+          schema: public
+insert_permissions:
+  - role: owner
+    permission:
+      check: {}
+      columns: '*'
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - id
+        - name
+        - usage_limit
+select_permissions:
+  - role: editor
+    permission:
+      columns: '*'
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: editor
+      allow_aggregations: true
+  - role: owner
+    permission:
+      columns: '*'
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: owner
+      allow_aggregations: true
+  - role: user
+    permission:
+      columns:
+        - id
+        - name
+        - usage_calls
+        - usage_limit
+        - usage_period_start
+        - created_at
+        - updated_at
+      filter:
+        members:
+          user_id:
+            _eq: X-Hasura-User-Id
+      allow_aggregations: true
+  - role: viewer
+    permission:
+      columns: '*'
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: viewer
+      allow_aggregations: true
+update_permissions:
+  - role: owner
+    permission:
+      columns: '*'
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: owner
+      check: null
+  - role: user
+    permission:
+      columns:
+        - name
+        - usage_limit
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: owner
+      check: null
+delete_permissions:
+  - role: owner
+    permission:
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: owner
+  - role: user
+    permission:
+      filter:
+        members:
+          _and:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - role:
+                _eq: owner

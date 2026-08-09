@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
       info: 'Database Event Trigger executed successfully.'
     }, { status: 200 })
 
-  } catch (err: any) {
-    console.error('[Database Event Trigger Error]:', err.message)
+  } catch (err: unknown) {
+    console.error('[Database Event Trigger Error]:', err instanceof Error ? err.message : String(err))
     return NextResponse.json(
       { message: 'Internal server error processing database event trigger.' },
       { status: 500 }
