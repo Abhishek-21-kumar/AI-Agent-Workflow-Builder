@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 interface PendingApproval {
   step_run_id: string
@@ -17,19 +17,34 @@ interface ApprovalGateCardProps {
 }
 
 export function ApprovalGateCard({ userRole, onApproved }: ApprovalGateCardProps) {
-  const [pendingList, setPendingList] = useState<PendingApproval[]>([
-    {
-      step_run_id: 'step-run-4',
-      workflow_name: 'Customer Support Sentiment & Escalation',
-      step_name: 'Owner Approval Gate',
-      required_role: 'owner',
-      message: 'High risk ticket requires owner sign-off before DB update & notification.',
-      paused_at: '2026-08-09T18:00:25.000Z'
-    }
-  ])
-
+  const [pendingList, setPendingList] = useState<PendingApproval[]>([])
+  const [loading, setLoading] = useState(true)
   const [approvingId, setApprovingId] = useState<string | null>(null)
   const [resultMsg, setResultMsg] = useState<{ id: string; status: 'success' | 'error'; text: string } | null>(null)
+
+  const fetchPendingApprovals = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/approvals/pending')
+      if (res.ok) {
+        const data = await res.json()
+        setPendingList(data.approvals || [])
+      } else {
+        setPendingList([])
+      }
+    } catch {
+      setPendingList([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchPendingApprovals()
+    // Poll every 10 seconds for new pending approvals
+    const interval = setInterval(fetchPendingApprovals, 10000)
+    return () => clearInterval(interval)
+  }, [fetchPendingApprovals])
 
   const handleApprove = async (item: PendingApproval) => {
     // Role check
@@ -97,12 +112,29 @@ export function ApprovalGateCard({ userRole, onApproved }: ApprovalGateCardProps
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
-        <h2 className="text-xl font-bold text-white tracking-tight">Asynchronous Approval Gates</h2>
-        <p className="text-zinc-400 text-xs mt-1">Human-in-the-loop authorization gates pausing workflow execution until sign-off.</p>
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight">Asynchronous Approval Gates</h2>
+          <p className="text-zinc-400 text-xs mt-1">Human-in-the-loop authorization gates pausing workflow execution until sign-off.</p>
+        </div>
+        <button
+          onClick={fetchPendingApprovals}
+          disabled={loading}
+          className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-mono transition-all cursor-pointer disabled:opacity-50"
+        >
+          {loading ? 'Loading...' : '↻ Refresh'}
+        </button>
       </div>
 
-      {pendingList.length === 0 ? (
+      {loading && pendingList.length === 0 ? (
+        <div className="bg-zinc-900/40 border border-zinc-800 p-8 rounded-2xl text-center space-y-2">
+          <div className="h-10 w-10 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto text-lg font-bold animate-pulse">
+            ⏳
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-200">Loading Pending Approvals...</h3>
+          <p className="text-xs text-zinc-400">Fetching approval gates from production database.</p>
+        </div>
+      ) : pendingList.length === 0 ? (
         <div className="bg-zinc-900/40 border border-zinc-800 p-8 rounded-2xl text-center space-y-2">
           <div className="h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto text-lg font-bold">
             ✓

@@ -242,7 +242,7 @@ async function executeStep(
     }
 
     case 'conditional_branch': {
-      const result = evaluateConditionBranch(step, input)
+      const result = evaluateConditionBranch(step, input, executionHistory)
       return {
         output: result,
         nextPosition: result.next_position

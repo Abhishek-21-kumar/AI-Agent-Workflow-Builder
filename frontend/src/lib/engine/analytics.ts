@@ -43,7 +43,13 @@ export async function fetchOrgUsageAnalytics(
     return fetchMockAnalytics(orgId)
   }
 
-  const HASURA_ENDPOINT = process.env.NHOST_GRAPHQL_URL || process.env.NEXT_PUBLIC_NHOST_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
+  const HASURA_SUBDOMAIN = process.env.NEXT_PUBLIC_NHOST_SUBDOMAIN || 'jvbfbauzspkhupdgbaii'
+  const HASURA_REGION = process.env.NEXT_PUBLIC_NHOST_REGION || 'ap-south-1'
+  const DEFAULT_HASURA_URL = HASURA_SUBDOMAIN === 'local' 
+    ? 'http://localhost:8080/v1/graphql' 
+    : `https://${HASURA_SUBDOMAIN}.hasura.${HASURA_REGION}.nhost.run/v1/graphql`
+
+  const HASURA_ENDPOINT = process.env.NHOST_GRAPHQL_URL || process.env.NEXT_PUBLIC_NHOST_GRAPHQL_URL || DEFAULT_HASURA_URL
   const HASURA_ADMIN_SECRET = process.env.NHOST_ADMIN_SECRET || process.env.HASURA_GRAPHQL_ADMIN_SECRET || 'nhost-admin-secret'
 
   const query = `

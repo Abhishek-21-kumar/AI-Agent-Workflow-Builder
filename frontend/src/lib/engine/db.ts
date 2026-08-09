@@ -1,6 +1,12 @@
 import { Workflow, WorkflowStep, Organization, OrgMember, WorkflowRun, StepRun, RunStatus, TriggerType } from './types'
 
-const HASURA_ENDPOINT = process.env.NHOST_GRAPHQL_URL || process.env.NEXT_PUBLIC_NHOST_GRAPHQL_URL || 'http://localhost:8080/v1/graphql'
+const HASURA_SUBDOMAIN = process.env.NEXT_PUBLIC_NHOST_SUBDOMAIN || 'jvbfbauzspkhupdgbaii'
+const HASURA_REGION = process.env.NEXT_PUBLIC_NHOST_REGION || 'ap-south-1'
+const DEFAULT_HASURA_URL = HASURA_SUBDOMAIN === 'local' 
+  ? 'http://localhost:8080/v1/graphql' 
+  : `https://${HASURA_SUBDOMAIN}.hasura.${HASURA_REGION}.nhost.run/v1/graphql`
+
+const HASURA_ENDPOINT = process.env.NHOST_GRAPHQL_URL || process.env.NEXT_PUBLIC_NHOST_GRAPHQL_URL || DEFAULT_HASURA_URL
 const HASURA_ADMIN_SECRET = process.env.NHOST_ADMIN_SECRET || process.env.HASURA_GRAPHQL_ADMIN_SECRET || 'nhost-admin-secret'
 
 /**
@@ -541,6 +547,80 @@ export async function incrementOrgUsageCall(orgId: string): Promise<void> {
     await hasuraGraphQL(mutation, { orgId })
   } catch (_err: any) {
     requireBackendOrMock('incrementOrgUsageCall')
+  }
+}
+
+export async function fetchPendingStepRuns(): Promise<Array<{
+  step_run_id: string
+  workflow_name: string
+  step_name: string
+  required_role: 'owner' | 'editor' | 'viewer'
+  message: string
+  paused_at: string
+}>> {
+  if (isDevMock()) {
+    const list: any[] = []
+    for (const sr of mockStore.stepRuns.values()) {
+      if (sr.status === 'waiting') {
+        const wr = mockStore.runs.get(sr.workflow_run_id)
+        const wf = wr ? mockStore.workflows.get(wr.workflow_id) : undefined
+        const steps = wf ? mockStore.steps.get(wf.id) || [] : []
+        const step = steps.find(s => s.id === sr.workflow_step_id)
+        list.push({
+          step_run_id: sr.id,
+          workflow_name: wf?.name || 'Customer Support Sentiment & Escalation',
+          step_name: step?.name || 'Owner Approval Gate',
+          required_role: (step?.config?.required_role as any) || 'owner',
+          message: step?.config?.message || 'High risk ticket requires sign-off.',
+          paused_at: sr.created_at || new Date().toISOString()
+        })
+      }
+    }
+    return list
+  }
+
+  try {
+    const query = `
+      query GetPendingStepRuns {
+        step_runs(
+          where: {
+            status: { _eq: "waiting" }
+            workflow_run: { status: { _eq: "paused" } }
+          }
+          order_by: { created_at: desc }
+        ) {
+          id
+          status
+          created_at
+          workflow_step {
+            id
+            name
+            position
+            config
+          }
+          workflow_run {
+            id
+            status
+            workflow {
+              id
+              name
+            }
+          }
+        }
+      }
+    `
+    const data = await hasuraGraphQL(query)
+    const runs = data?.step_runs || []
+    return runs.map((sr: any) => ({
+      step_run_id: sr.id,
+      workflow_name: sr.workflow_run?.workflow?.name || 'Customer Support Sentiment & Escalation',
+      step_name: sr.workflow_step?.name || 'Owner Approval Gate',
+      required_role: sr.workflow_step?.config?.required_role || 'owner',
+      message: sr.workflow_step?.config?.message || 'Owner approval required for urgent escalation.',
+      paused_at: sr.created_at
+    }))
+  } catch (_err) {
+    return []
   }
 }
 

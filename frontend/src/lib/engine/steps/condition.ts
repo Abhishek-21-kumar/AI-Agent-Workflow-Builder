@@ -25,7 +25,8 @@ function getValueByPath(obj: any, path: string): any {
 
 export function evaluateConditionBranch(
   step: WorkflowStep,
-  lastStepOutput: Record<string, any> = {}
+  lastStepOutput: Record<string, any> = {},
+  executionHistory: Record<string, any> = {}
 ): {
   evaluated: boolean
   next_position: number
@@ -41,7 +42,11 @@ export function evaluateConditionBranch(
   const ifTruePos = config.if_true_position ?? step.position + 1
   const ifFalsePos = config.if_false_position ?? step.position + 2
 
-  const actualValue = getValueByPath(lastStepOutput, path) ?? ''
+  const actualValue = getValueByPath(lastStepOutput, path)
+    ?? getValueByPath(executionHistory.step_1, path)
+    ?? getValueByPath(executionHistory.workflow_input, path)
+    ?? getValueByPath(executionHistory.workflow_input, 'ticket_text')
+    ?? ''
   let evaluated = false
 
   const strActual = String(actualValue).toLowerCase()
