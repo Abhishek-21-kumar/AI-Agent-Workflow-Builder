@@ -60,7 +60,7 @@ export function ApprovalGateCard({ userRole, onApproved }: ApprovalGateCardProps
           action: { name: 'approveStepRun' },
           input: { step_run_id: item.step_run_id },
           session_variables: {
-            'x-hasura-user-id': 'user-owner-a',
+            'x-hasura-user-id': 'a1111111-1111-1111-1111-111111111111',
             'x-hasura-role': userRole
           }
         })

@@ -31,48 +31,48 @@ interface WorkflowBuilderProps {
 export function WorkflowBuilder({ userRole, onRunTriggered }: WorkflowBuilderProps) {
   const [workflows, setWorkflows] = useState<WorkflowItem[]>([
     {
-      id: 'wf-demo-001',
+      id: 'c1111111-1111-1111-1111-111111111111',
       name: 'Customer Support Sentiment & Escalation',
       description: 'Analyze sentiment via LLM, route via conditional branch, and seek owner approval for high risk actions.',
       active: true,
       steps: [
         {
-          id: 'step-1',
+          id: 'd1111111-1111-1111-1111-111111111111',
           position: 1,
           name: 'LLM Sentiment Analysis',
           type: 'llm_call',
           config: { provider: 'groq', model: 'llama-3.3-70b-versatile', prompt: 'Analyze sentiment: {{input.ticket_text}}' }
         },
         {
-          id: 'step-2',
+          id: 'd2222222-2222-2222-2222-222222222222',
           position: 2,
           name: 'HTTP Fetch Metadata',
           type: 'http_request',
           config: { method: 'GET', url: 'https://httpbin.org/get?user={{input.user_id}}' }
         },
         {
-          id: 'step-3',
+          id: 'd3333333-3333-3333-3333-333333333333',
           position: 3,
           name: 'Evaluate Risk Branch',
           type: 'conditional_branch',
           config: { condition: { path: 'text', operator: 'contains', value: 'urgent' }, if_true_position: 4, if_false_position: 5 }
         },
         {
-          id: 'step-4',
+          id: 'd4444444-4444-4444-4444-444444444444',
           position: 4,
           name: 'Owner Approval Gate',
           type: 'approval_gate',
           config: { required_role: 'owner', message: 'Owner approval required for urgent escalation.' }
         },
         {
-          id: 'step-5',
+          id: 'd5555555-5555-5555-5555-555555555555',
           position: 5,
           name: 'DB Audit Log',
           type: 'db_write',
           config: { table: 'audit_logs', action: 'insert', payload: { status: 'processed' } }
         },
         {
-          id: 'step-6',
+          id: 'd6666666-6666-6666-6666-666666666666',
           position: 6,
           name: 'Slack Notification',
           type: 'notify',
@@ -82,9 +82,9 @@ export function WorkflowBuilder({ userRole, onRunTriggered }: WorkflowBuilderPro
     }
   ])
 
-  const [selectedWfId] = useState<string>('wf-demo-001')
+  const [selectedWfId] = useState<string>('c1111111-1111-1111-1111-111111111111')
   const [inputText, setInputText] = useState<string>('Customer is expressing urgent dissatisfaction with delayed order #4920')
-  const [userId, setUserId] = useState<string>('user-owner-a')
+  const [userId, setUserId] = useState<string>('a1111111-1111-1111-1111-111111111111')
   const [executing, setExecuting] = useState<boolean>(false)
   const [executionResult, setExecutionResult] = useState<any>(null)
 
