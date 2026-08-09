@@ -1,6 +1,8 @@
 # Dependencies
 node_modules
 /.pnpm
+/.pnpm-store
+.pnpm-store
 /.yarn
 
 # Next.js build outputs
